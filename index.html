@@ -1,0 +1,641 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>RPA ERP Automation Demo</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:#eef2f7;
+}
+
+/* LOGIN */
+
+.login{
+width:350px;
+margin:120px auto;
+background:white;
+padding:30px;
+border-radius:8px;
+box-shadow:0 3px 8px rgba(0,0,0,0.2);
+}
+
+input,select{
+width:100%;
+padding:8px;
+margin-top:6px;
+}
+
+button{
+padding:10px 16px;
+background:#2f6fad;
+color:white;
+border:none;
+border-radius:4px;
+cursor:pointer;
+margin-top:10px;
+}
+
+/* LAYOUT */
+
+.topbar{
+background:#243b5e;
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+font-size:18px;
+}
+
+.main{
+display:flex;
+height:100vh;
+}
+
+.sidebar{
+width:220px;
+background:#1c2e4a;
+color:white;
+padding-top:20px;
+}
+
+.sidebar a{
+display:block;
+padding:12px 20px;
+cursor:pointer;
+color:white;
+text-decoration:none;
+}
+
+.sidebar a:hover{
+background:#2f6fad;
+}
+
+.content{
+flex:1;
+padding:30px;
+overflow:auto;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:8px;
+margin-bottom:20px;
+box-shadow:0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* KPI */
+
+.stats{
+display:flex;
+gap:20px;
+flex-wrap:wrap;
+}
+
+.stat{
+flex:1;
+padding:20px;
+border-radius:6px;
+color:white;
+font-size:18px;
+min-width:180px;
+}
+
+.total{background:#2f6fad;}
+.match{background:#28a745;}
+.nomatch{background:#dc3545;}
+.vendors{background:#6f42c1;}
+
+/* FORM */
+
+.form-row{
+display:flex;
+flex-direction:column;
+margin-bottom:12px;
+}
+
+/* TABLE */
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th{
+background:#243b5e;
+color:white;
+padding:8px;
+}
+
+td{
+border:1px solid #ccc;
+padding:8px;
+}
+
+/* Vendor progress bars */
+
+.vendorBar{
+margin-top:10px;
+}
+
+.progress{
+background:#ddd;
+height:20px;
+border-radius:10px;
+overflow:hidden;
+}
+
+.matchBar{
+background:#28a745;
+height:100%;
+}
+
+.unmatchBar{
+background:#dc3545;
+height:100%;
+}
+
+.page{display:none}
+
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div id="loginPage" class="login">
+
+<h2>ERP Login</h2>
+
+<label>Username</label>
+<input id="user">
+
+<label>Password</label>
+<input type="password" id="pass">
+
+<button onclick="login()">Login</button>
+
+</div>
+
+
+<!-- ERP SYSTEM -->
+
+<div id="erpSystem" style="display:none">
+
+<div class="topbar">
+ERP Automation System
+<span>Admin</span>
+</div>
+
+<div class="main">
+
+<div class="sidebar">
+
+<a onclick="showPage('dashboard')">Dashboard</a>
+<a onclick="showPage('invoicePage')">Invoices</a>
+<a onclick="showPage('vendorPage')">Vendors</a>
+<a onclick="showPage('reportPage')">Reports</a>
+
+</div>
+
+<div class="content">
+
+<!-- DASHBOARD -->
+
+<div id="dashboard" class="page">
+
+<div class="stats">
+
+<div class="stat total">
+Total Invoices<br>
+<span id="totalInvoices">0</span>
+</div>
+
+<div class="stat match">
+Matched<br>
+<span id="matchedInvoices">0</span>
+</div>
+
+<div class="stat nomatch">
+Not Matched<br>
+<span id="notMatchedInvoices">0</span>
+</div>
+
+<div class="stat vendors">
+Vendors<br>
+<span id="vendorCount">0</span>
+</div>
+<br>
+</div>
+
+<div class="card">
+
+<h3>Vendor Invoice Distribution</h3>
+<canvas id="vendorChart"></canvas>
+
+</div>
+
+<div class="card">
+
+<h3>Matched vs Not Matched</h3>
+<canvas id="statusChart"></canvas>
+
+</div>
+
+<div class="card">
+
+<h3>Vendor Match vs Unmatched Comparison</h3>
+<canvas id="vendorStatusChart"></canvas>
+
+</div>
+
+<div class="card">
+
+<h3>Vendor Performance</h3>
+
+<div id="vendorPerformance"></div>
+
+</div>
+
+</div>
+
+
+<!-- INVOICE PAGE -->
+
+<div id="invoicePage" class="page">
+
+<div class="card">
+
+<h3>Invoice Entry</h3>
+
+<div class="form-row">
+<label>Vendor</label>
+<input id="vendor">
+</div>
+
+<div class="form-row">
+<label>Customer</label>
+<input id="customer">
+</div>
+
+<div class="form-row">
+<label>Invoice Number</label>
+<input id="invoice">
+</div>
+
+<div class="form-row">
+<label>Amount</label>
+<input type="number" id="amount">
+</div>
+
+<div class="form-row">
+<label>Invoice Date</label>
+<input type="date" id="date">
+</div>
+
+<div class="form-row">
+<label>Status</label>
+<select id="status">
+<option>Matched</option>
+<option>Not Matched</option>
+</select>
+</div>
+
+<button onclick="addInvoice()">Submit Invoice</button>
+
+</div>
+
+
+<div class="card">
+
+<h3>Invoice Table</h3>
+
+<table>
+
+<thead>
+<tr>
+<th>Vendor</th>
+<th>Customer</th>
+<th>Invoice</th>
+<th>Amount</th>
+<th>Date</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="invoiceTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<!-- VENDORS -->
+
+<div id="vendorPage" class="page">
+
+<div class="card">
+
+<h3>Vendor List</h3>
+
+<table>
+
+<thead>
+<tr>
+<th>Vendor Name</th>
+</tr>
+</thead>
+
+<tbody id="vendorTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<!-- REPORT -->
+
+<div id="reportPage" class="page">
+
+<div class="card">
+
+<h3>Invoice Summary Report</h3>
+
+<button onclick="generateReport()">Generate</button>
+
+<table>
+
+<thead>
+<tr>
+<th>Total</th>
+<th>Matched</th>
+<th>Not Matched</th>
+<th>Vendors</th>
+</tr>
+</thead>
+
+<tbody id="reportTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+</div>
+</div>
+
+<script>
+
+/* LOGIN */
+
+function login(){
+
+var u=document.getElementById("user").value;
+var p=document.getElementById("pass").value;
+
+if(u==="admin" && p==="admin"){
+
+document.getElementById("loginPage").style.display="none";
+document.getElementById("erpSystem").style.display="block";
+
+showPage("dashboard");
+
+}else{
+
+alert("Use admin / admin");
+
+}
+
+}
+
+/* PAGE NAV */
+
+function showPage(page){
+
+var pages=document.getElementsByClassName("page");
+
+for(var i=0;i<pages.length;i++){
+pages[i].style.display="none";
+}
+
+document.getElementById(page).style.display="block";
+
+}
+
+/* DATA */
+
+var total=0;
+var matched=0;
+var notMatched=0;
+
+var vendors=[];
+var vendorStats={};
+
+var vendorChart;
+var statusChart;
+var vendorStatusChart;
+
+/* ADD INVOICE */
+
+function addInvoice(){
+
+var vendor=document.getElementById("vendor").value;
+var customer=document.getElementById("customer").value;
+var invoice=document.getElementById("invoice").value;
+var amount=document.getElementById("amount").value;
+var date=document.getElementById("date").value;
+var status=document.getElementById("status").value;
+
+if(!vendor||!customer||!invoice||!amount||!date){
+alert("Fill all fields");
+return;
+}
+
+/* TABLE */
+
+var table=document.getElementById("invoiceTable");
+var row=table.insertRow();
+
+row.insertCell(0).innerText=vendor;
+row.insertCell(1).innerText=customer;
+row.insertCell(2).innerText=invoice;
+row.insertCell(3).innerText=amount;
+row.insertCell(4).innerText=date;
+row.insertCell(5).innerText=status;
+
+/* DASHBOARD */
+
+total++;
+
+if(status==="Matched"){matched++}
+else{notMatched++}
+
+document.getElementById("totalInvoices").innerText=total;
+document.getElementById("matchedInvoices").innerText=matched;
+document.getElementById("notMatchedInvoices").innerText=notMatched;
+
+/* VENDOR LIST */
+
+if(!vendors.includes(vendor)){
+
+vendors.push(vendor);
+
+var vrow=document.getElementById("vendorTable").insertRow();
+vrow.insertCell(0).innerText=vendor;
+
+document.getElementById("vendorCount").innerText=vendors.length;
+
+}
+
+/* VENDOR STATS */
+
+if(!vendorStats[vendor]){
+
+vendorStats[vendor]={matched:0,unmatched:0};
+
+}
+
+if(status==="Matched"){
+vendorStats[vendor].matched++
+}else{
+vendorStats[vendor].unmatched++
+}
+
+/* UPDATE VISUALS */
+
+updateCharts();
+updateVendorPerformance();
+
+/* CLEAR FORM */
+
+document.getElementById("vendor").value="";
+document.getElementById("customer").value="";
+document.getElementById("invoice").value="";
+document.getElementById("amount").value="";
+document.getElementById("date").value="";
+
+}
+
+/* CHARTS */
+
+function updateCharts(){
+
+var labels=Object.keys(vendorStats);
+
+var totals=labels.map(v=>vendorStats[v].matched+vendorStats[v].unmatched);
+
+if(vendorChart){vendorChart.destroy()}
+
+vendorChart=new Chart(document.getElementById("vendorChart"),{
+
+type:"pie",
+
+data:{labels:labels,datasets:[{data:totals}]}
+
+});
+
+
+if(statusChart){statusChart.destroy()}
+
+statusChart=new Chart(document.getElementById("statusChart"),{
+
+type:"bar",
+
+data:{
+labels:["Matched","Not Matched"],
+datasets:[{data:[matched,notMatched]}]
+}
+
+});
+
+
+var matchedData=labels.map(v=>vendorStats[v].matched);
+var unmatchedData=labels.map(v=>vendorStats[v].unmatched);
+
+if(vendorStatusChart){vendorStatusChart.destroy()}
+
+vendorStatusChart=new Chart(document.getElementById("vendorStatusChart"),{
+
+type:"bar",
+
+data:{
+labels:labels,
+datasets:[
+{label:"Matched",data:matchedData},
+{label:"Not Matched",data:unmatchedData}
+]
+}
+
+});
+
+}
+
+/* Vendor performance bars */
+
+function updateVendorPerformance(){
+
+var container=document.getElementById("vendorPerformance");
+container.innerHTML="";
+
+for(var v in vendorStats){
+
+var totalVendor=vendorStats[v].matched+vendorStats[v].unmatched;
+
+var matchPercent=(vendorStats[v].matched/totalVendor)*100;
+
+container.innerHTML+=`
+
+<div class="vendorBar">
+
+<b>${v}</b>
+
+<div class="progress">
+<div class="matchBar" style="width:${matchPercent}%"></div>
+</div>
+
+Matched: ${vendorStats[v].matched} |
+NotMatched: ${vendorStats[v].unmatched}
+
+</div>
+
+`;
+
+}
+
+}
+
+/* REPORT */
+
+function generateReport(){
+
+var table=document.getElementById("reportTable");
+table.innerHTML="";
+
+var row=table.insertRow();
+
+row.insertCell(0).innerText=total;
+row.insertCell(1).innerText=matched;
+row.insertCell(2).innerText=notMatched;
+row.insertCell(3).innerText=vendors.length;
+
+}
+
+</script>
+
+</body>
+</html>
+```
