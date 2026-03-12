@@ -6,154 +6,61 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-
 body{font-family:Arial;margin:0;background:#eef2f7;}
-
-.login{
-width:350px;
-margin:120px auto;
-background:white;
-padding:30px;
-border-radius:8px;
-box-shadow:0 3px 8px rgba(0,0,0,0.2);
-}
-
-input,select{
-width:100%;
-padding:8px;
-margin-top:6px;
-}
-
-button{
-padding:8px 14px;
-background:#2f6fad;
-color:white;
-border:none;
-border-radius:4px;
-cursor:pointer;
-}
-
-.deleteBtn{
-background:#dc3545;
-padding:5px 8px;
-font-size:12px;
-}
-
-.topbar{
-background:#243b5e;
-color:white;
-padding:15px;
-display:flex;
-justify-content:space-between;
-}
-
+.login{width:350px;margin:120px auto;background:white;padding:30px;border-radius:8px;box-shadow:0 3px 8px rgba(0,0,0,0.2);}
+.login h2{margin-bottom:20px;}
+.form-row{display:flex;flex-direction:column;margin-bottom:15px;} /* more spacing */
+input,select{width:100%;padding:8px;margin-top:6px;border:1px solid #ccc;border-radius:4px;}
+button{padding:10px 14px;background:#2f6fad;color:white;border:none;border-radius:4px;cursor:pointer;margin-top:10px;}
+.deleteBtn{background:#dc3545;padding:5px 8px;font-size:12px;}
+.topbar{background:#243b5e;color:white;padding:15px;display:flex;justify-content:space-between;}
 .main{display:flex;height:100vh;}
-
-.sidebar{
-width:220px;
-background:#1c2e4a;
-color:white;
-padding-top:20px;
-}
-
-.sidebar a{
-display:block;
-padding:12px 20px;
-cursor:pointer;
-color:white;
-text-decoration:none;
-}
-
+.sidebar{width:220px;background:#1c2e4a;color:white;padding-top:20px;}
+.sidebar a{display:block;padding:12px 20px;cursor:pointer;color:white;text-decoration:none;}
 .sidebar a:hover{background:#2f6fad;}
-
 .content{flex:1;padding:25px;overflow:auto;}
-
-.card{
-background:white;
-padding:20px;
-border-radius:8px;
-margin-bottom:20px;
-box-shadow:0 2px 6px rgba(0,0,0,0.15);
-}
-
+.card{background:white;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,0.15);}
 .stats{display:flex;gap:20px;flex-wrap:wrap;}
-
-.stat{
-flex:1;
-padding:18px;
-border-radius:6px;
-color:white;
-min-width:180px;
-}
-
+.stat{flex:1;padding:18px;border-radius:6px;color:white;min-width:180px;}
 .total{background:#2f6fad;}
 .match{background:#28a745;}
 .nomatch{background:#dc3545;}
 .vendors{background:#6f42c1;}
-
-.chartGrid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px;
-}
-
-.chartBox{
-height:260px;
-}
-
+.chartGrid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.chartBox{height:260px;}
 canvas{max-height:220px;}
-
-.form-row{
-display:flex;
-flex-direction:column;
-margin-bottom:12px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:10px;
-}
-
+table{width:100%;border-collapse:collapse;margin-top:10px;}
 th{background:#243b5e;color:white;padding:8px;}
 td{border:1px solid #ccc;padding:8px;}
-
-.searchBox{
-padding:6px;
-width:220px;
-margin-bottom:10px;
-}
-
-.page{display:none}
-
+.searchBox{padding:6px;width:220px;margin-bottom:10px;}
+.page{display:none;}
 </style>
 </head>
 
 <body>
 
+<!-- LOGIN PAGE -->
 <div id="loginPage" class="login">
-
 <h2>ERP Login</h2>
-
+<div class="form-row">
 <label>Username</label>
 <input id="user">
-
+</div>
+<div class="form-row">
 <label>Password</label>
 <input type="password" id="pass">
-
+</div>
 <button onclick="login()">Login</button>
-
 </div>
 
+<!-- ERP SYSTEM -->
 <div id="erpSystem" style="display:none">
-
 <div class="topbar">
 ERP Automation System
 <span>Admin</span>
 </div>
 
 <div class="main">
-
 <div class="sidebar">
 <a onclick="showPage('dashboard')">Dashboard</a>
 <a onclick="showPage('invoicePage')">Invoices</a>
@@ -164,60 +71,46 @@ ERP Automation System
 <div class="content">
 
 <!-- DASHBOARD -->
-
 <div id="dashboard" class="page">
-
 <div class="stats">
-
 <div class="stat total">
 Total Invoices<br>
 <span id="totalInvoices">0</span>
 </div>
-
 <div class="stat match">
 Matched<br>
 <span id="matchedInvoices">0</span>
 </div>
-
 <div class="stat nomatch">
 Not Matched<br>
 <span id="notMatchedInvoices">0</span>
 </div>
-
 <div class="stat vendors">
 Vendors<br>
 <span id="vendorCount">0</span>
 </div>
-
 </div>
 
 <div class="chartGrid">
-
 <div class="card chartBox">
 <h3>Vendor Distribution</h3>
 <canvas id="vendorChart"></canvas>
 </div>
-
 <div class="card chartBox">
 <h3>Status Overview</h3>
 <canvas id="statusChart"></canvas>
 </div>
-
 </div>
 
 <div class="card chartBox">
 <h3>Vendor Match Comparison</h3>
 <canvas id="vendorStatusChart"></canvas>
 </div>
-
 </div>
 
 <!-- INVOICE PAGE -->
-
 <div id="invoicePage" class="page">
-
 <div class="card">
-
 <h3>Invoice Entry</h3>
 
 <div class="form-row">
@@ -237,7 +130,7 @@ Vendors<br>
 
 <div class="form-row">
 <label>Amount</label>
-<input type="number" id="amount">
+<input type="number" id="amount" step="any">
 </div>
 
 <div class="form-row">
@@ -249,22 +142,17 @@ Vendors<br>
 <label>Status</label>
 <select id="status">
 <option value="Matched">Matched</option>
-<option value="Not Matched">Not Matched</option>
+<option value="Not Matched" selected>Not Matched</option>
 </select>
 </div>
 
 <button onclick="addInvoice()">Submit Invoice</button>
-
 </div>
 
 <div class="card">
-
 <h3>Invoice Table</h3>
-
 <input class="searchBox" placeholder="Search invoice..." onkeyup="searchInvoice(this.value)">
-
 <table>
-
 <thead>
 <tr>
 <th>Vendor</th>
@@ -276,52 +164,33 @@ Vendors<br>
 <th>Action</th>
 </tr>
 </thead>
-
 <tbody id="invoiceTable"></tbody>
-
 </table>
-
 </div>
-
 </div>
 
 <!-- VENDOR PAGE -->
-
 <div id="vendorPage" class="page">
-
 <div class="card">
-
 <h3>Vendor List</h3>
-
 <table>
-
 <thead>
 <tr>
 <th>Vendor Name</th>
 </tr>
 </thead>
-
 <tbody id="vendorTable"></tbody>
-
 </table>
-
 </div>
-
 </div>
 
 <!-- REPORT PAGE -->
-
 <div id="reportPage" class="page">
-
 <div class="card">
-
 <h3>Invoice Summary Report</h3>
-
 <button onclick="generateReport()">Generate</button>
 <button onclick="exportCSV()">Export Excel</button>
-
 <table>
-
 <thead>
 <tr>
 <th>Total</th>
@@ -330,13 +199,9 @@ Vendors<br>
 <th>Vendors</th>
 </tr>
 </thead>
-
 <tbody id="reportTable"></tbody>
-
 </table>
-
 </div>
-
 </div>
 
 </div>
@@ -344,109 +209,86 @@ Vendors<br>
 </div>
 
 <script>
-
 var invoices=[];
 var vendorStats={};
-
 var vendorChart;
 var statusChart;
 var vendorStatusChart;
 
 /* LOGIN */
-
 function login(){
-
-if(user.value==="admin" && pass.value==="admin"){
-
-loginPage.style.display="none";
-erpSystem.style.display="block";
-
+if(document.getElementById("user").value==="admin" && document.getElementById("pass").value==="admin"){
+document.getElementById("loginPage").style.display="none";
+document.getElementById("erpSystem").style.display="block";
 loadData();
-
 showPage("dashboard");
-
 }else{
 alert("Use admin / admin");
 }
-
 }
 
 /* PAGE NAV */
-
 function showPage(page){
-
 document.querySelectorAll(".page").forEach(p=>p.style.display="none");
-
 document.getElementById(page).style.display="block";
-
 }
 
 /* ADD INVOICE */
-
 function addInvoice(){
+var selectedStatus = document.getElementById("status").value;
 
-var data={
-vendor:vendor.value,
-customer:customer.value,
-invoice:invoice.value,
-amount:amount.value,
-date:date.value,
-status:status.value
-};
+var vendorVal = document.getElementById("vendor").value.trim();
+var customerVal = document.getElementById("customer").value.trim();
+var invoiceVal = document.getElementById("invoice").value.trim();
+var amountVal = document.getElementById("amount").value;
+var dateVal = document.getElementById("date").value;
 
-if(!data.vendor||!data.customer||!data.invoice||!data.amount||!data.date){
+if(!vendorVal || !customerVal || !invoiceVal || !amountVal || !dateVal){
 alert("Fill all fields");
 return;
 }
 
+var data = {
+vendor: vendorVal,
+customer: customerVal,
+invoice: invoiceVal,
+amount: parseFloat(amountVal),
+date: dateVal,
+status: selectedStatus
+};
+
 invoices.push(data);
-
-localStorage.setItem("erpInvoices",JSON.stringify(invoices));
-
+localStorage.setItem("erpInvoices", JSON.stringify(invoices));
 renderData();
 
-vendor.value="";
-customer.value="";
-invoice.value="";
-amount.value="";
-date.value="";
-status.value
-
+// reset form
+document.getElementById("vendor").value="";
+document.getElementById("customer").value="";
+document.getElementById("invoice").value="";
+document.getElementById("amount").value="";
+document.getElementById("date").value="";
+document.getElementById("status").value="Not Matched";
 }
 
 /* LOAD STORAGE */
-
 function loadData(){
-
 var stored=localStorage.getItem("erpInvoices");
-
-if(stored){
-invoices=JSON.parse(stored);
-}
-
+if(stored){ invoices=JSON.parse(stored); }
 renderData();
-
 }
 
 /* RENDER DATA */
-
 function renderData(){
-
-invoiceTable.innerHTML="";
-vendorTable.innerHTML="";
-
+document.getElementById("invoiceTable").innerHTML="";
+document.getElementById("vendorTable").innerHTML="";
 vendorStats={};
-
 var vendors=[];
-
 var total=invoices.length;
 var matched=0;
 var notMatched=0;
 
 invoices.forEach((inv,index)=>{
-
-var row=invoiceTable.insertRow();
-
+var row=document.getElementById("invoiceTable").insertRow();
 row.insertCell(0).innerText=inv.vendor;
 row.insertCell(1).innerText=inv.customer;
 row.insertCell(2).innerText=inv.invoice;
@@ -454,14 +296,13 @@ row.insertCell(3).innerText=inv.amount;
 row.insertCell(4).innerText=inv.date;
 row.insertCell(5).innerText=inv.status;
 
-row.insertCell(6).innerHTML=
-`<button class="deleteBtn" onclick="deleteInvoice(${index})">Delete</button>`;
+if(inv.status==="Matched"){matched++;}else{notMatched++;}
 
-if(inv.status==="Matched"){matched++}else{notMatched++}
+row.insertCell(6).innerHTML=`<button class="deleteBtn" onclick="deleteInvoice(${index})">Delete</button>`;
 
 if(!vendors.includes(inv.vendor)){
 vendors.push(inv.vendor);
-var vrow=vendorTable.insertRow();
+var vrow=document.getElementById("vendorTable").insertRow();
 vrow.insertCell(0).innerText=inv.vendor;
 }
 
@@ -474,121 +315,87 @@ vendorStats[inv.vendor].matched++;
 }else{
 vendorStats[inv.vendor].unmatched++;
 }
-
 });
 
-totalInvoices.innerText=total;
-matchedInvoices.innerText=matched;
-notMatchedInvoices.innerText=notMatched;
-vendorCount.innerText=vendors.length;
+document.getElementById("totalInvoices").innerText=total;
+document.getElementById("matchedInvoices").innerText=matched;
+document.getElementById("notMatchedInvoices").innerText=notMatched;
+document.getElementById("vendorCount").innerText=vendors.length;
 
 updateCharts(matched,notMatched);
-
 }
 
 /* DELETE */
-
 function deleteInvoice(i){
-
 invoices.splice(i,1);
-
-localStorage.setItem("erpInvoices",JSON.stringify(invoices));
-
+localStorage.setItem("erpInvoices", JSON.stringify(invoices));
 renderData();
-
 }
 
 /* SEARCH */
-
 function searchInvoice(val){
-
 val=val.toLowerCase();
-
 document.querySelectorAll("#invoiceTable tr").forEach(row=>{
 row.style.display=row.innerText.toLowerCase().includes(val)?"":"none";
 });
-
 }
 
 /* CHARTS */
-
 function updateCharts(matched,notMatched){
-
 var labels=Object.keys(vendorStats);
 var totals=labels.map(v=>vendorStats[v].matched+vendorStats[v].unmatched);
 
 if(vendorChart)vendorChart.destroy();
-
-vendorChart=new Chart(vendorChart=document.getElementById("vendorChart"),{
+vendorChart=new Chart(document.getElementById("vendorChart"),{
 type:"doughnut",
 data:{labels:labels,datasets:[{data:totals}]}
 });
 
 if(statusChart)statusChart.destroy();
-
-statusChart=new Chart(statusChart=document.getElementById("statusChart"),{
+statusChart=new Chart(document.getElementById("statusChart"),{
 type:"bar",
 data:{labels:["Matched","Not Matched"],datasets:[{data:[matched,notMatched]}]}
 });
 
 var m=labels.map(v=>vendorStats[v].matched);
 var u=labels.map(v=>vendorStats[v].unmatched);
-
 if(vendorStatusChart)vendorStatusChart.destroy();
-
-vendorStatusChart=new Chart(vendorStatusChart=document.getElementById("vendorStatusChart"),{
+vendorStatusChart=new Chart(document.getElementById("vendorStatusChart"),{
 type:"bar",
 data:{labels:labels,datasets:[
 {label:"Matched",data:m},
 {label:"Not Matched",data:u}
 ]}
 });
-
 }
 
 /* REPORT */
-
 function generateReport(){
-
-reportTable.innerHTML="";
-
+document.getElementById("reportTable").innerHTML="";
 var total=invoices.length;
 var matched=invoices.filter(i=>i.status==="Matched").length;
 var notMatched=total-matched;
-
 var vendors=[...new Set(invoices.map(i=>i.vendor))];
-
-var row=reportTable.insertRow();
-
+var row=document.getElementById("reportTable").insertRow();
 row.insertCell(0).innerText=total;
 row.insertCell(1).innerText=matched;
 row.insertCell(2).innerText=notMatched;
 row.insertCell(3).innerText=vendors.length;
-
 }
 
 /* EXPORT CSV */
-
 function exportCSV(){
-
 let csv="Vendor,Customer,Invoice,Amount,Date,Status\n";
-
 invoices.forEach(i=>{
 csv+=`${i.vendor},${i.customer},${i.invoice},${i.amount},${i.date},${i.status}\n`;
 });
-
 var blob=new Blob([csv],{type:"text/csv"});
 var link=document.createElement("a");
-
 link.href=URL.createObjectURL(blob);
 link.download="invoice_report.csv";
-
 link.click();
-
 }
-
 </script>
 
 </body>
-
 </html>
