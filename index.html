@@ -1,20 +1,13 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-<title>RPA ERP Automation Demo</title>
+<title>ERP Automation Demo</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
-body{
-font-family:Arial;
-margin:0;
-background:#eef2f7;
-}
-
-/* LOGIN */
+body{font-family:Arial;margin:0;background:#eef2f7;}
 
 .login{
 width:350px;
@@ -32,16 +25,19 @@ margin-top:6px;
 }
 
 button{
-padding:10px 16px;
+padding:8px 14px;
 background:#2f6fad;
 color:white;
 border:none;
 border-radius:4px;
 cursor:pointer;
-margin-top:10px;
 }
 
-/* LAYOUT */
+.deleteBtn{
+background:#dc3545;
+padding:5px 8px;
+font-size:12px;
+}
 
 .topbar{
 background:#243b5e;
@@ -49,13 +45,9 @@ color:white;
 padding:15px;
 display:flex;
 justify-content:space-between;
-font-size:18px;
 }
 
-.main{
-display:flex;
-height:100vh;
-}
+.main{display:flex;height:100vh;}
 
 .sidebar{
 width:220px;
@@ -72,15 +64,9 @@ color:white;
 text-decoration:none;
 }
 
-.sidebar a:hover{
-background:#2f6fad;
-}
+.sidebar a:hover{background:#2f6fad;}
 
-.content{
-flex:1;
-padding:30px;
-overflow:auto;
-}
+.content{flex:1;padding:25px;overflow:auto;}
 
 .card{
 background:white;
@@ -90,20 +76,13 @@ margin-bottom:20px;
 box-shadow:0 2px 6px rgba(0,0,0,0.15);
 }
 
-/* KPI */
-
-.stats{
-display:flex;
-gap:20px;
-flex-wrap:wrap;
-}
+.stats{display:flex;gap:20px;flex-wrap:wrap;}
 
 .stat{
 flex:1;
-padding:20px;
+padding:18px;
 border-radius:6px;
 color:white;
-font-size:18px;
 min-width:180px;
 }
 
@@ -112,7 +91,17 @@ min-width:180px;
 .nomatch{background:#dc3545;}
 .vendors{background:#6f42c1;}
 
-/* FORM */
+.chartGrid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+.chartBox{
+height:260px;
+}
+
+canvas{max-height:220px;}
 
 .form-row{
 display:flex;
@@ -120,46 +109,19 @@ flex-direction:column;
 margin-bottom:12px;
 }
 
-/* TABLE */
-
 table{
 width:100%;
 border-collapse:collapse;
-margin-top:20px;
-}
-
-th{
-background:#243b5e;
-color:white;
-padding:8px;
-}
-
-td{
-border:1px solid #ccc;
-padding:8px;
-}
-
-/* Vendor progress bars */
-
-.vendorBar{
 margin-top:10px;
 }
 
-.progress{
-background:#ddd;
-height:20px;
-border-radius:10px;
-overflow:hidden;
-}
+th{background:#243b5e;color:white;padding:8px;}
+td{border:1px solid #ccc;padding:8px;}
 
-.matchBar{
-background:#28a745;
-height:100%;
-}
-
-.unmatchBar{
-background:#dc3545;
-height:100%;
+.searchBox{
+padding:6px;
+width:220px;
+margin-bottom:10px;
 }
 
 .page{display:none}
@@ -168,8 +130,6 @@ height:100%;
 </head>
 
 <body>
-
-<!-- LOGIN -->
 
 <div id="loginPage" class="login">
 
@@ -185,9 +145,6 @@ height:100%;
 
 </div>
 
-
-<!-- ERP SYSTEM -->
-
 <div id="erpSystem" style="display:none">
 
 <div class="topbar">
@@ -198,12 +155,10 @@ ERP Automation System
 <div class="main">
 
 <div class="sidebar">
-
 <a onclick="showPage('dashboard')">Dashboard</a>
 <a onclick="showPage('invoicePage')">Invoices</a>
 <a onclick="showPage('vendorPage')">Vendors</a>
 <a onclick="showPage('reportPage')">Reports</a>
-
 </div>
 
 <div class="content">
@@ -233,40 +188,29 @@ Not Matched<br>
 Vendors<br>
 <span id="vendorCount">0</span>
 </div>
-<br>
+
 </div>
 
-<div class="card">
+<div class="chartGrid">
 
-<h3>Vendor Invoice Distribution</h3>
+<div class="card chartBox">
+<h3>Vendor Distribution</h3>
 <canvas id="vendorChart"></canvas>
-
 </div>
 
-<div class="card">
-
-<h3>Matched vs Not Matched</h3>
+<div class="card chartBox">
+<h3>Status Overview</h3>
 <canvas id="statusChart"></canvas>
+</div>
 
 </div>
 
-<div class="card">
-
-<h3>Vendor Match vs Unmatched Comparison</h3>
+<div class="card chartBox">
+<h3>Vendor Match Comparison</h3>
 <canvas id="vendorStatusChart"></canvas>
-
-</div>
-
-<div class="card">
-
-<h3>Vendor Performance</h3>
-
-<div id="vendorPerformance"></div>
-
 </div>
 
 </div>
-
 
 <!-- INVOICE PAGE -->
 
@@ -297,15 +241,15 @@ Vendors<br>
 </div>
 
 <div class="form-row">
-<label>Invoice Date</label>
+<label>Date</label>
 <input type="date" id="date">
 </div>
 
 <div class="form-row">
 <label>Status</label>
 <select id="status">
-<option>Matched</option>
-<option>Not Matched</option>
+<option value="Matched">Matched</option>
+<option value="Not Matched">Not Matched</option>
 </select>
 </div>
 
@@ -313,10 +257,11 @@ Vendors<br>
 
 </div>
 
-
 <div class="card">
 
 <h3>Invoice Table</h3>
+
+<input class="searchBox" placeholder="Search invoice..." onkeyup="searchInvoice(this.value)">
 
 <table>
 
@@ -328,6 +273,7 @@ Vendors<br>
 <th>Amount</th>
 <th>Date</th>
 <th>Status</th>
+<th>Action</th>
 </tr>
 </thead>
 
@@ -339,8 +285,7 @@ Vendors<br>
 
 </div>
 
-
-<!-- VENDORS -->
+<!-- VENDOR PAGE -->
 
 <div id="vendorPage" class="page">
 
@@ -364,8 +309,7 @@ Vendors<br>
 
 </div>
 
-
-<!-- REPORT -->
+<!-- REPORT PAGE -->
 
 <div id="reportPage" class="page">
 
@@ -374,6 +318,7 @@ Vendors<br>
 <h3>Invoice Summary Report</h3>
 
 <button onclick="generateReport()">Generate</button>
+<button onclick="exportCSV()">Export Excel</button>
 
 <table>
 
@@ -400,24 +345,28 @@ Vendors<br>
 
 <script>
 
+var invoices=[];
+var vendorStats={};
+
+var vendorChart;
+var statusChart;
+var vendorStatusChart;
+
 /* LOGIN */
 
 function login(){
 
-var u=document.getElementById("user").value;
-var p=document.getElementById("pass").value;
+if(user.value==="admin" && pass.value==="admin"){
 
-if(u==="admin" && p==="admin"){
+loginPage.style.display="none";
+erpSystem.style.display="block";
 
-document.getElementById("loginPage").style.display="none";
-document.getElementById("erpSystem").style.display="block";
+loadData();
 
 showPage("dashboard");
 
 }else{
-
 alert("Use admin / admin");
-
 }
 
 }
@@ -426,195 +375,173 @@ alert("Use admin / admin");
 
 function showPage(page){
 
-var pages=document.getElementsByClassName("page");
-
-for(var i=0;i<pages.length;i++){
-pages[i].style.display="none";
-}
+document.querySelectorAll(".page").forEach(p=>p.style.display="none");
 
 document.getElementById(page).style.display="block";
 
 }
 
-/* DATA */
-
-var total=0;
-var matched=0;
-var notMatched=0;
-
-var vendors=[];
-var vendorStats={};
-
-var vendorChart;
-var statusChart;
-var vendorStatusChart;
-
 /* ADD INVOICE */
 
 function addInvoice(){
 
-var vendor=document.getElementById("vendor").value;
-var customer=document.getElementById("customer").value;
-var invoice=document.getElementById("invoice").value;
-var amount=document.getElementById("amount").value;
-var date=document.getElementById("date").value;
-var status=document.getElementById("status").value;
+var data={
+vendor:vendor.value,
+customer:customer.value,
+invoice:invoice.value,
+amount:amount.value,
+date:date.value,
+status:status.value
+};
 
-if(!vendor||!customer||!invoice||!amount||!date){
+if(!data.vendor||!data.customer||!data.invoice||!data.amount||!data.date){
 alert("Fill all fields");
 return;
 }
 
-/* TABLE */
+invoices.push(data);
 
-var table=document.getElementById("invoiceTable");
-var row=table.insertRow();
+localStorage.setItem("erpInvoices",JSON.stringify(invoices));
 
-row.insertCell(0).innerText=vendor;
-row.insertCell(1).innerText=customer;
-row.insertCell(2).innerText=invoice;
-row.insertCell(3).innerText=amount;
-row.insertCell(4).innerText=date;
-row.insertCell(5).innerText=status;
+renderData();
 
-/* DASHBOARD */
-
-total++;
-
-if(status==="Matched"){matched++}
-else{notMatched++}
-
-document.getElementById("totalInvoices").innerText=total;
-document.getElementById("matchedInvoices").innerText=matched;
-document.getElementById("notMatchedInvoices").innerText=notMatched;
-
-/* VENDOR LIST */
-
-if(!vendors.includes(vendor)){
-
-vendors.push(vendor);
-
-var vrow=document.getElementById("vendorTable").insertRow();
-vrow.insertCell(0).innerText=vendor;
-
-document.getElementById("vendorCount").innerText=vendors.length;
+vendor.value="";
+customer.value="";
+invoice.value="";
+amount.value="";
+date.value="";
 
 }
 
-/* VENDOR STATS */
+/* LOAD STORAGE */
 
-if(!vendorStats[vendor]){
+function loadData(){
 
-vendorStats[vendor]={matched:0,unmatched:0};
+var stored=localStorage.getItem("erpInvoices");
+
+if(stored){
+invoices=JSON.parse(stored);
+}
+
+renderData();
 
 }
 
-if(status==="Matched"){
-vendorStats[vendor].matched++
+/* RENDER DATA */
+
+function renderData(){
+
+invoiceTable.innerHTML="";
+vendorTable.innerHTML="";
+
+vendorStats={};
+
+var vendors=[];
+
+var total=invoices.length;
+var matched=0;
+var notMatched=0;
+
+invoices.forEach((inv,index)=>{
+
+var row=invoiceTable.insertRow();
+
+row.insertCell(0).innerText=inv.vendor;
+row.insertCell(1).innerText=inv.customer;
+row.insertCell(2).innerText=inv.invoice;
+row.insertCell(3).innerText=inv.amount;
+row.insertCell(4).innerText=inv.date;
+row.insertCell(5).innerText=inv.status;
+
+row.insertCell(6).innerHTML=
+`<button class="deleteBtn" onclick="deleteInvoice(${index})">Delete</button>`;
+
+if(inv.status==="Matched"){matched++}else{notMatched++}
+
+if(!vendors.includes(inv.vendor)){
+vendors.push(inv.vendor);
+var vrow=vendorTable.insertRow();
+vrow.insertCell(0).innerText=inv.vendor;
+}
+
+if(!vendorStats[inv.vendor]){
+vendorStats[inv.vendor]={matched:0,unmatched:0};
+}
+
+if(inv.status==="Matched"){
+vendorStats[inv.vendor].matched++;
 }else{
-vendorStats[vendor].unmatched++
+vendorStats[inv.vendor].unmatched++;
 }
 
-/* UPDATE VISUALS */
+});
 
-updateCharts();
-updateVendorPerformance();
+totalInvoices.innerText=total;
+matchedInvoices.innerText=matched;
+notMatchedInvoices.innerText=notMatched;
+vendorCount.innerText=vendors.length;
 
-/* CLEAR FORM */
+updateCharts(matched,notMatched);
 
-document.getElementById("vendor").value="";
-document.getElementById("customer").value="";
-document.getElementById("invoice").value="";
-document.getElementById("amount").value="";
-document.getElementById("date").value="";
+}
+
+/* DELETE */
+
+function deleteInvoice(i){
+
+invoices.splice(i,1);
+
+localStorage.setItem("erpInvoices",JSON.stringify(invoices));
+
+renderData();
+
+}
+
+/* SEARCH */
+
+function searchInvoice(val){
+
+val=val.toLowerCase();
+
+document.querySelectorAll("#invoiceTable tr").forEach(row=>{
+row.style.display=row.innerText.toLowerCase().includes(val)?"":"none";
+});
 
 }
 
 /* CHARTS */
 
-function updateCharts(){
+function updateCharts(matched,notMatched){
 
 var labels=Object.keys(vendorStats);
-
 var totals=labels.map(v=>vendorStats[v].matched+vendorStats[v].unmatched);
 
-if(vendorChart){vendorChart.destroy()}
+if(vendorChart)vendorChart.destroy();
 
-vendorChart=new Chart(document.getElementById("vendorChart"),{
-
-type:"pie",
-
+vendorChart=new Chart(vendorChart=document.getElementById("vendorChart"),{
+type:"doughnut",
 data:{labels:labels,datasets:[{data:totals}]}
-
 });
 
+if(statusChart)statusChart.destroy();
 
-if(statusChart){statusChart.destroy()}
-
-statusChart=new Chart(document.getElementById("statusChart"),{
-
+statusChart=new Chart(statusChart=document.getElementById("statusChart"),{
 type:"bar",
-
-data:{
-labels:["Matched","Not Matched"],
-datasets:[{data:[matched,notMatched]}]
-}
-
+data:{labels:["Matched","Not Matched"],datasets:[{data:[matched,notMatched]}]}
 });
 
+var m=labels.map(v=>vendorStats[v].matched);
+var u=labels.map(v=>vendorStats[v].unmatched);
 
-var matchedData=labels.map(v=>vendorStats[v].matched);
-var unmatchedData=labels.map(v=>vendorStats[v].unmatched);
+if(vendorStatusChart)vendorStatusChart.destroy();
 
-if(vendorStatusChart){vendorStatusChart.destroy()}
-
-vendorStatusChart=new Chart(document.getElementById("vendorStatusChart"),{
-
+vendorStatusChart=new Chart(vendorStatusChart=document.getElementById("vendorStatusChart"),{
 type:"bar",
-
-data:{
-labels:labels,
-datasets:[
-{label:"Matched",data:matchedData},
-{label:"Not Matched",data:unmatchedData}
-]
-}
-
+data:{labels:labels,datasets:[
+{label:"Matched",data:m},
+{label:"Not Matched",data:u}
+]}
 });
-
-}
-
-/* Vendor performance bars */
-
-function updateVendorPerformance(){
-
-var container=document.getElementById("vendorPerformance");
-container.innerHTML="";
-
-for(var v in vendorStats){
-
-var totalVendor=vendorStats[v].matched+vendorStats[v].unmatched;
-
-var matchPercent=(vendorStats[v].matched/totalVendor)*100;
-
-container.innerHTML+=`
-
-<div class="vendorBar">
-
-<b>${v}</b>
-
-<div class="progress">
-<div class="matchBar" style="width:${matchPercent}%"></div>
-</div>
-
-Matched: ${vendorStats[v].matched} |
-NotMatched: ${vendorStats[v].unmatched}
-
-</div>
-
-`;
-
-}
 
 }
 
@@ -622,10 +549,15 @@ NotMatched: ${vendorStats[v].unmatched}
 
 function generateReport(){
 
-var table=document.getElementById("reportTable");
-table.innerHTML="";
+reportTable.innerHTML="";
 
-var row=table.insertRow();
+var total=invoices.length;
+var matched=invoices.filter(i=>i.status==="Matched").length;
+var notMatched=total-matched;
+
+var vendors=[...new Set(invoices.map(i=>i.vendor))];
+
+var row=reportTable.insertRow();
 
 row.insertCell(0).innerText=total;
 row.insertCell(1).innerText=matched;
@@ -634,8 +566,27 @@ row.insertCell(3).innerText=vendors.length;
 
 }
 
+/* EXPORT CSV */
+
+function exportCSV(){
+
+let csv="Vendor,Customer,Invoice,Amount,Date,Status\n";
+
+invoices.forEach(i=>{
+csv+=`${i.vendor},${i.customer},${i.invoice},${i.amount},${i.date},${i.status}\n`;
+});
+
+var blob=new Blob([csv],{type:"text/csv"});
+var link=document.createElement("a");
+
+link.href=URL.createObjectURL(blob);
+link.download="invoice_report.csv";
+
+link.click();
+
+}
+
 </script>
 
 </body>
 </html>
-```
